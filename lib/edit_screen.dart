@@ -127,7 +127,8 @@ class _EditScreenState extends State<EditScreen> {
            trimmedUrl.startsWith('udp://') ||
            trimmedUrl.startsWith('wg://') ||
            trimmedUrl.startsWith('ws://') ||
-           trimmedUrl.startsWith('wss://');
+           trimmedUrl.startsWith('wss://') ||
+           trimmedUrl.startsWith('txt://');
   }
 
   bool _isValidIPv4(String ip) {

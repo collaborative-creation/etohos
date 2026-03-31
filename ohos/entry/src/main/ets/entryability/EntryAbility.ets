@@ -302,11 +302,16 @@ export default class EntryAbility extends FlutterAbility {
 
     if (resourceManager.DeviceType.DEVICE_TYPE_PC == deviceType ||
       resourceManager.DeviceType.DEVICE_TYPE_2IN1 == deviceType) {
+      this.addToStatusBar(this.context)
       const callback = () => {
         // ...
         return new Promise<boolean>((resolve, reject) => {
           // 是否关闭该窗口
-          this.context.hideAbility();
+          this.context.hideAbility().then(() => {
+            console.info(`hideAbility success`);
+          }).catch((err: BusinessError) => {
+            console.error(`hideAbility fail, err: ${JSON.stringify(err)}`);
+          });
           let result: boolean = true;
           resolve(result);
         });

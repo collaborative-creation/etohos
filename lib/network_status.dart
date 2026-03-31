@@ -128,6 +128,10 @@ class _NetworkStatusState extends State<NetworkStatus> {
   Widget _build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+    // 6寸手机常见逻辑宽度约在390dp左右，小于该阈值时认为是更窄的小屏手机
+    final shouldMoveInfoButtonsToSecondLine =
+        isEnglish && MediaQuery.sizeOf(context).width < 390;
     
     return Container(
       margin: const EdgeInsets.all(16),
@@ -156,74 +160,34 @@ class _NetworkStatusState extends State<NetworkStatus> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 标题 - 现代化设计
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.speed, color: colorScheme.primary, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          t('network_status'),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
+              if (shouldMoveInfoButtonsToSecondLine) ...[
+                Row(
+                  children: [
+                    _buildStatusTitle(colorScheme),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _buildPeerInfoButton(colorScheme),
+                      _buildRouteInfoButton(colorScheme),
+                    ],
                   ),
-                  const Spacer(),
-                  // 节点信息按钮
-                  InkWell(
-                    onTap: () => _showPeerInfoDialog(),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${t('peer')}: $_peerCount',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.primary.withOpacity(0.8),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // 路由信息按钮
-                  InkWell(
-                    onTap: () => _showRouteInfoDialog(),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${t('routes')}: ${_routes.length}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.secondary.withOpacity(0.8),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ] else
+                Row(
+                  children: [
+                    _buildStatusTitle(colorScheme),
+                    const Spacer(),
+                    _buildPeerInfoButton(colorScheme),
+                    const SizedBox(width: 8),
+                    _buildRouteInfoButton(colorScheme),
+                  ],
+                ),
               const SizedBox(height: 20),
 
             // IP信息
@@ -285,6 +249,75 @@ class _NetworkStatusState extends State<NetworkStatus> {
               ),
             ],
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusTitle(ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.speed, color: colorScheme.primary, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            t('network_status'),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPeerInfoButton(ColorScheme colorScheme) {
+    return InkWell(
+      onTap: () => _showPeerInfoDialog(),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: colorScheme.primaryContainer.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          '${t('peer')}: $_peerCount',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.primary.withOpacity(0.8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRouteInfoButton(ColorScheme colorScheme) {
+    return InkWell(
+      onTap: () => _showRouteInfoDialog(),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: colorScheme.secondaryContainer.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          '${t('routes')}: ${_routes.length}',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: colorScheme.secondary.withOpacity(0.8),
           ),
         ),
       ),
